@@ -1,0 +1,22 @@
+{{ config(materialized='table') }}
+
+with
+    orders as (select * from {{ ref('stg_orders') }}),
+    customers as (select * from {{ ref('stg_customers') }}),
+    order_items as (select * from {{ ref('stg_order_items') }}),
+    products as (select * from {{ ref('stg_products') }})
+select
+    o.order_id,
+    o.order_date,
+    c.first_name,
+    c.last_name,
+    c.email,
+    p.product_name,
+    oi.quantity,
+    oi.unit_price,
+    o.total_amount
+from
+    orders o
+    join customers c on o.customer_id = c.customer_id
+    join order_items oi on o.order_id = oi.order_id
+    join products p on oi.product_id = p.product_id
